@@ -1,7 +1,7 @@
 import { swagger } from "@elysiajs/swagger";
 // import { Response } from "bun-types/fetch";
 import { Elysia, t } from "elysia";
-import { getPost, getPosts } from "./handlers";
+import { createPost, getPost, getPosts, updatePost } from "./handlers";
 const app = new Elysia()
   .use(swagger())
   .get("/post", () => getPosts())
@@ -9,6 +9,42 @@ const app = new Elysia()
     params: t.Object({
       id: t.Numeric(),
     }),
+  })
+  .post("/", ({ body }) => createPost(body), {
+    body: t.Object({
+      title: t.String({
+        minLength: 3,
+        maxLength: 50,
+      }),
+      content: t.String({
+        minLength: 3,
+        maxLength: 50,
+      }),
+    }),
+  })
+  .put("/post/:id", ({ params: { id }, body }) => updatePost(id, body), {
+    params: t.Object({
+      id: t.Numeric(),
+    }),
+    body: t.Object(
+      {
+        title: t.Optional(
+          t.String({
+            minLength: 3,
+            maxLength: 50,
+          })
+        ),
+        content: t.Optional(
+          t.String({
+            minLength: 3,
+            maxLength: 50,
+          })
+        ),
+      },
+      {
+        minProperties: 1,
+      }
+    ),
   })
   .listen(4000);
 
